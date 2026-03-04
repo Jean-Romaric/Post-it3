@@ -1,4 +1,4 @@
-exports.homepage = async (req, res) => {
+exports.dashboard = async (req, res) => {
     const locals = {
         title: 'Dashboard',
         description: 'Welcome to the Dashboard'
@@ -6,6 +6,6 @@ exports.homepage = async (req, res) => {
     res.render('dashboard/index',
         {
             locals,
-            layout: '../views/layouts/dashboard'
+            layout: '../views/layouts/dashboard' //Ça indique quel fichier layout utiliser pour afficher la page.
         } );
 }
