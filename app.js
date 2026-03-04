@@ -19,10 +19,24 @@ app.use(expressLayouts);
 app.set('layout', 'layouts/main'); // Définit le layout par défaut pour toutes les vues. Cela signifie que toutes les vues rendues utiliseront ce layout à moins qu'un autre layout ne soit spécifié dans la vue elle-même.
 app.set('view engine', 'ejs');// Définit le moteur de rendu des vues sur EJS (Embedded JavaScript). Cela permet à l'application de rendre des fichiers .ejs comme des vues HTML dynamiques.
 
-app.get('/', (req, res) => {
-    res.render('index', { title: 'Home' }); //index.ejs est la vue qui sera rendue lorsque l'utilisateur accède à la route racine ("/"). Le deuxième argument { title: 'Home' } est un objet qui contient des données que tu peux utiliser dans ta vue EJS. Dans ce cas, tu passes une variable title avec la valeur 'Home' à la vue index.ejs, ce qui te permet d'afficher dynamiquement le titre de la page dans ton template EJS.
+/*app.get('/', (req, res) => {
+    const locals = {
+        title: 'Home',
+        description: 'Welcome to the Post-it App'
+    }
+    res.render('index', locals);
 });
+*/
 
+
+//Routes
+app.use('/', require('./server/routes/index')); //app.use() est une méthode d'Express.js qui permet de monter des middleware ou des routes sur une application Express. Dans ce cas, app.use('/', require('./server/routes/index')) signifie que toutes les requêtes HTTP qui commencent par '/' (la racine de l'application) seront dirigées vers le routeur défini dans le fichier './server/routes/index'. Le fichier './server/routes/index' doit exporter un routeur Express qui gère les différentes routes et les actions associées à ces routes. Par exemple, si le routeur dans './server/routes/index' définit une route pour GET '/', alors cette route sera accessible via http://localhost:3000/ et exécutera la logique définie dans ce routeur.
+app.use('/', require('./server/routes/dashboard')); //app.use() est une méthode d'Express.js qui permet de monter des middleware ou des routes sur une application Express. Dans ce cas, app.use('/auth', require('./server/routes/auth')) signifie que toutes les requêtes HTTP qui commencent par '/auth' seront dirigées vers le routeur défini dans le fichier './server/routes/auth'. Le fichier './server/routes/auth' doit exporter un routeur Express qui gère les différentes routes et les actions associées à ces routes d'authentification. Par exemple, si le routeur dans './server/routes/auth' définit une route pour GET '/login', alors cette route sera accessible via http://localhost:3000/auth/login et exécutera la logique définie dans ce routeur.
+
+
+app.use((req, res) => {
+    res.status(404).render('404');
+});
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
