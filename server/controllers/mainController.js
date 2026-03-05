@@ -13,4 +13,4 @@ exports.about = async (req, res) => {
         description: 'Welcome to the Post-it App'
     }
     res.render('about', locals);
-}
+} 

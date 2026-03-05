@@ -8,4 +8,4 @@ exports.dashboard = async (req, res) => {
             locals,
             layout: '../views/layouts/dashboard' //Ça indique quel fichier layout utiliser pour afficher la page.
         } );
-}
+};
