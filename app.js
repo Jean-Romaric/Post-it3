@@ -7,15 +7,25 @@ const expressLayouts = require('express-ejs-layouts');
 const connectDB = require('./server/config/db');
 const session = require('express-session');
 const passport = require('passport');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo').default;
 
 
 
 const app = express();
 const PORT = process.env.PORT || 3000; 
 
+app.use(session({
+    secret: "Romaric",
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+         mongoUrl: process.env.MONGO_URI 
+         // Utilise connect-mongo pour stocker les sessions dans MongoDB. Cela permet de conserver les sessions même si le serveur redémarre, contrairement au stockage en mémoire qui perdrait toutes les sessions en cas de redémarrage du serveur.
+        }) 
+})); //express-session est un middleware pour Express.js qui permet de gérer les sessions utilisateur. Une session est une manière de stocker des données spécifiques à un utilisateur entre les différentes requêtes HTTP. Cela est particulièrement utile pour l'authentification, où tu veux garder une trace de l'utilisateur connecté.
+
 app.use(passport.initialize());
-//app.use(passport.session());
+app.use(passport.session());
 
 //app.use() permet d’ajouter une fonction qui s’exécute pour toutes les requêtes qui arrivent sur le serveur.
 //app.use() est une méthode fondamentale dans Express.js, utilisée pour monter des middleware dans l'application. Un middleware est une fonction qui a accès à l'objet de requête (req), à l'objet de réponse (res) et à la fonction next() dans le cycle de requête-réponse de l'application. Les middlewares peuvent exécuter du code, modifier les objets de requête et de réponse, terminer le cycle de requête-réponse ou appeler la fonction next() pour passer le contrôle au middleware suivant.
