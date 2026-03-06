@@ -1,15 +1,21 @@
 require('dotenv').config();
 const dns = require('dns');
-dns.setServers(['1.1.1.1','8.8.8.8']);
+dns.setServers(['1.1.1.1','8.8.8.8']);//dns public de google et cloudflare pour éviter les problèmes de résolution de noms de domaine qui peuvent survenir avec les serveurs DNS par défaut de l'hébergeur. En utilisant des serveurs DNS publics, tu peux améliorer la fiabilité et la vitesse de résolution des noms de domaine, ce qui peut être particulièrement utile si tu rencontres des problèmes de connectivité ou de performance liés aux DNS.
 
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const connectDB = require('./server/config/db');
+const session = require('express-session');
+const passport = require('passport');
+const MongoStore = require('connect-mongo');
 
 
 
 const app = express();
 const PORT = process.env.PORT || 3000; 
+
+app.use(passport.initialize());
+//app.use(passport.session());
 
 //app.use() permet d’ajouter une fonction qui s’exécute pour toutes les requêtes qui arrivent sur le serveur.
 //app.use() est une méthode fondamentale dans Express.js, utilisée pour monter des middleware dans l'application. Un middleware est une fonction qui a accès à l'objet de requête (req), à l'objet de réponse (res) et à la fonction next() dans le cycle de requête-réponse de l'application. Les middlewares peuvent exécuter du code, modifier les objets de requête et de réponse, terminer le cycle de requête-réponse ou appeler la fonction next() pour passer le contrôle au middleware suivant.
@@ -40,6 +46,7 @@ app.set('view engine', 'ejs');// Définit le moteur de rendu des vues sur EJS (E
  
 
 //Routes
+app.use('/', require('./server/routes/auth')); //Toutes les routes dans auth.js deviennent accessibles
 app.use('/', require('./server/routes/index')); //app.use() est une méthode d'Express.js qui permet de monter des middleware ou des routes sur une application Express. Dans ce cas, app.use('/', require('./server/routes/index')) signifie que toutes les requêtes HTTP qui commencent par '/' (la racine de l'application) seront dirigées vers le routeur défini dans le fichier './server/routes/index'. Le fichier './server/routes/index' doit exporter un routeur Express qui gère les différentes routes et les actions associées à ces routes. Par exemple, si le routeur dans './server/routes/index' définit une route pour GET '/', alors cette route sera accessible via http://localhost:3000/ et exécutera la logique définie dans ce routeur.
 app.use('/', require('./server/routes/dashboard')); //app.use() est une méthode d'Express.js qui permet de monter des middleware ou des routes sur une application Express. Dans ce cas, app.use('/auth', require('./server/routes/auth')) signifie que toutes les requêtes HTTP qui commencent par '/auth' seront dirigées vers le routeur défini dans le fichier './server/routes/auth'. Le fichier './server/routes/auth' doit exporter un routeur Express qui gère les différentes routes et les actions associées à ces routes d'authentification. Par exemple, si le routeur dans './server/routes/auth' définit une route pour GET '/login', alors cette route sera accessible via http://localhost:3000/auth/login et exécutera la logique définie dans ce routeur.
 
