@@ -9,3 +9,12 @@ for (let i = 0; i < mot.length; i++) {
     //console.log(mot[i]);
 }
 console.log(c);*/
+const dns = require('dns');
+import dns  from 'dns';
+
+dns.setServers(['1.1.1.1','8.8.8.8']);
+
+
+dns.lookup('www.example.com', (err, address, family) => {
+  console.log('address: %j family: IPv%s', address, family);
+});

@@ -1,10 +1,13 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setServers(['1.1.1.1','8.8.8.8']);
 
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const connectDB = require('./server/config/db');
 
-console.log("damage controbbjkmjkjkfdc l");
+
+
 const app = express();
 const PORT = process.env.PORT || 3000; 
 
