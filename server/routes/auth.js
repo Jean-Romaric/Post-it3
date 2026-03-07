@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy; //Cela importe la stratégie OAuth2 de Google pour Passport.
-const User = require('../models/User'); //Cela importe le modèle User, qui est utilisé pour interagir avec la base de données MongoDB pour stocker et récupérer les informations
+const User = require('../models/User');        //Cela importe le modèle User, qui est utilisé pour interagir avec la base de données MongoDB pour stocker et récupérer les informations
 
-passport.use(new GoogleStrategy({ //Cela configure Passport pour utiliser Google.
-  clientID: process.env.GOOGLE_CLIENT_ID,//identifiant de mon application
+passport.use(new GoogleStrategy({                  //Cela configure Passport pour utiliser Google.
+  clientID: process.env.GOOGLE_CLIENT_ID,            //identifiant de mon application
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,//mot de passe de mon application
   callbackURL: process.env.GOOGLE_CALLBACK_URL //URL où Google renvoie l'utilisateur après l'authentification. Cette URL doit être enregistrée dans la console de développeur Google pour ton application.
 },
@@ -62,15 +62,21 @@ passport.serializeUser((user, done) => { //serializeUser stocker l'id dans la se
 });
 
 //Récupérer les données utilisateur de la session
-passport.deserializeUser((id, done) => {//"deserialize" : User récupérer l'utilisateur depuis la base
+passport.deserializeUser(async (id, done) => {//"deserialize" : User récupérer l'utilisateur depuis la base
   // On cherche l'utilisateur dans la base de données
   // en utilisant son id
-  User.findById(id, (err, user) => {
-    // done() indique à Passport que l'opération est terminée
-    // err : s'il y a une erreur
-    // user : l'utilisateur récupéré dans la base de données
+  try{
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
+/*passport.deserializeUser((id, done) => {
     done(err, user);
   });
 });
+*/
 
+//Logout Route
 module.exports = router;

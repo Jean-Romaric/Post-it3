@@ -7,19 +7,20 @@ const expressLayouts = require('express-ejs-layouts');
 const connectDB = require('./server/config/db');
 const session = require('express-session');
 const passport = require('passport');
-const MongoStore = require('connect-mongo').default;
+const MongoStore = require('connect-mongo').default; //connect-mongo est une bibliothèque qui permet de stocker les sessions Express.js dans une base de données MongoDB. Cela est particulièrement utile pour les applications qui nécessitent une persistance des sessions, même en cas de redémarrage du serveur. En utilisant connect-mongo, les sessions sont stockées de manière sécurisée dans MongoDB, ce qui permet de maintenir l'état de l'utilisateur entre les différentes requêtes et de gérer les sessions de manière plus efficace.
 
 
 
 const app = express();
 const PORT = process.env.PORT || 3000; 
 
+
 app.use(session({
     secret: "Romaric",
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-         mongoUrl: process.env.MONGO_URI 
+         mongoUrl: process.env.MONGODB_URI
          // Utilise connect-mongo pour stocker les sessions dans MongoDB. Cela permet de conserver les sessions même si le serveur redémarre, contrairement au stockage en mémoire qui perdrait toutes les sessions en cas de redémarrage du serveur.
         }) 
 })); //express-session est un middleware pour Express.js qui permet de gérer les sessions utilisateur. Une session est une manière de stocker des données spécifiques à un utilisateur entre les différentes requêtes HTTP. Cela est particulièrement utile pour l'authentification, où tu veux garder une trace de l'utilisateur connecté.
