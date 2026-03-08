@@ -15,9 +15,9 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
-    lastName:{
+    lastName: {
         type: String,
-        required: true, 
+        required: true,
     },
     profileImage: {
         type: String,
@@ -29,4 +29,4 @@ const UserSchema = new Schema({
     }
 
 })
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema);//User nom du modèle

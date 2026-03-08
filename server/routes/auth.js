@@ -40,7 +40,10 @@ passport.use(new GoogleStrategy({                  //Cela configure Passport pou
 //Google LOGIN Route
 
 router.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile'] }));//Je veux accéder aux informations de profil de l'utilisateur. Lorsque l'utilisateur accède à cette route, il est redirigé vers la page de connexion de Google. Après que l'utilisateur se soit connecté et ait autorisé l'accès à son profil, Google redirige l'utilisateur vers la route de rappel spécifiée dans callbackURL.
+  passport.authenticate('google', {
+    scope: ['profile'],
+    prompt: 'select_account'
+  }));//Je veux accéder aux informations de profil de l'utilisateur. Lorsque l'utilisateur accède à cette route, il est redirigé vers la page de connexion de Google. Après que l'utilisateur se soit connecté et ait autorisé l'accès à son profil, Google redirige l'utilisateur vers la route de rappel spécifiée dans callbackURL.
 
 router.get('/google/callback', // Après essaie d'authentification google redirige vers cette route /login-failure si echoue(utilisateur peut mettre annuler) et si reussite redirige vers dashboard 
   passport.authenticate('google', {
@@ -55,9 +58,21 @@ router.get('/google/callback', // Après essaie d'authentification google rediri
 router.get('/login-failure', (req, res) => {
   res.send('Failed to authenticate... Please try again.');
 });
+//Destruvtion de session pour logout
+router.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.log(err);
+      res.send('Error logging out');
+    } else {
+      res.redirect('/');
+    }
+  })
+});
+
 
 // Conserver les données utilisateur après une authentification réussie
-passport.serializeUser((user, done) => { //serializeUser stocker l'id dans la session                                         
+passport.serializeUser((user, done) => { //serializeUser stocker l'id de user dans la session                                         
   done(null, user.id); //la donnée qu'on veut stoker dans la session 
 });
 
@@ -65,7 +80,7 @@ passport.serializeUser((user, done) => { //serializeUser stocker l'id dans la se
 passport.deserializeUser(async (id, done) => {//"deserialize" : User récupérer l'utilisateur depuis la base
   // On cherche l'utilisateur dans la base de données
   // en utilisant son id
-  try{
+  try {
     const user = await User.findById(id);
     done(null, user);
   } catch (err) {

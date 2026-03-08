@@ -1,6 +1,6 @@
 require('dotenv').config();
 const dns = require('dns');
-dns.setServers(['1.1.1.1','8.8.8.8']);//dns public de google et cloudflare pour éviter les problèmes de résolution de noms de domaine qui peuvent survenir avec les serveurs DNS par défaut de l'hébergeur. En utilisant des serveurs DNS publics, tu peux améliorer la fiabilité et la vitesse de résolution des noms de domaine, ce qui peut être particulièrement utile si tu rencontres des problèmes de connectivité ou de performance liés aux DNS.
+dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
@@ -9,37 +9,48 @@ const session = require('express-session');
 const passport = require('passport');
 const MongoStore = require('connect-mongo').default; //connect-mongo est une bibliothèque qui permet de stocker les sessions Express.js dans une base de données MongoDB. Cela est particulièrement utile pour les applications qui nécessitent une persistance des sessions, même en cas de redémarrage du serveur. En utilisant connect-mongo, les sessions sont stockées de manière sécurisée dans MongoDB, ce qui permet de maintenir l'état de l'utilisateur entre les différentes requêtes et de gérer les sessions de manière plus efficace.
 
+dns.setServers(['1.1.1.1', '8.8.8.8']);//dns public de google et cloudflare pour éviter les problèmes de résolution de noms de domaine qui peuvent survenir avec les serveurs DNS par défaut de l'hébergeur. En utilisant des serveurs DNS publics, tu peux améliorer la fiabilité et la vitesse de résolution des noms de domaine, ce qui peut être particulièrement utile si tu rencontres des problèmes de connectivité ou de performance liés aux DNS.
+
 
 
 const app = express();
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 3000;
 
 
 app.use(session({
-    secret: "Romaric",
+    secret: process.env.SECRET, //Le secret est une chaîne de caractères utilisée pour signer et vérifier les cookies de session. Il doit être suffisamment long et complexe pour garantir la sécurité des sessions. En utilisant un secret fort, tu peux protéger les sessions contre les attaques de falsification de requêtes intersites (CSRF) et d'autres types d'attaques visant à compromettre la sécurité des sessions.
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24,         // 24h par ex.
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',  // très important en prod
+        sameSite: 'lax'                      // ou 'strict'
+    },
     store: MongoStore.create({
-         mongoUrl: process.env.MONGODB_URI
-         // Utilise connect-mongo pour stocker les sessions dans MongoDB. Cela permet de conserver les sessions même si le serveur redémarre, contrairement au stockage en mémoire qui perdrait toutes les sessions en cas de redémarrage du serveur.
-        }) 
+        mongoUrl: process.env.MONGODB_URI
+        // Utilise connect-mongo pour stocker les sessions dans MongoDB. Cela permet de conserver les sessions même si le serveur redémarre, contrairement au stockage en mémoire qui perdrait toutes les sessions en cas de redémarrage du serveur.
+    })
 })); //express-session est un middleware pour Express.js qui permet de gérer les sessions utilisateur. Une session est une manière de stocker des données spécifiques à un utilisateur entre les différentes requêtes HTTP. Cela est particulièrement utile pour l'authentification, où tu veux garder une trace de l'utilisateur connecté.
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize());//Initialise Passport pour l'authentification. Cela prépare Passport à être utilisé dans l'application Express.js.
+app.use(passport.session());//Intègre Passport avec les sessions Express. Cela permet à Passport de gérer les sessions utilisateur, en sérialisant et désérialisant les informations de l'utilisateur pour maintenir l'état de connexion entre les différentes requêtes HTTP. En utilisant passport.session(), tu peux facilement vérifier si un utilisateur est authentifié et accéder à ses informations dans tes routes Express.js.
 
 //app.use() permet d’ajouter une fonction qui s’exécute pour toutes les requêtes qui arrivent sur le serveur.
 //app.use() est une méthode fondamentale dans Express.js, utilisée pour monter des middleware dans l'application. Un middleware est une fonction qui a accès à l'objet de requête (req), à l'objet de réponse (res) et à la fonction next() dans le cycle de requête-réponse de l'application. Les middlewares peuvent exécuter du code, modifier les objets de requête et de réponse, terminer le cycle de requête-réponse ou appeler la fonction next() pour passer le contrôle au middleware suivant.
 app.use(express.urlencoded({ extended: true })); //express.urlencoded() <=> Permet de lire les données des formulaires envoyées en méthode POST.
-                                                //extended: true, Peut lire des objets complexes, Peut lire des tableaux dans le formulaire
+//extended: true, Peut lire des objets complexes, Peut lire des tableaux dans le formulaire
 app.use(express.json());// Pour chaque requête qui contient du JSON, transforme ce JSON en objet JavaScript.
+
+
+// Static files
+app.use(express.static('public')); //Sert à servir les fichiers statiques dans ton serveur Express.js.   ---- 'public' est un dossier qui contient des fichiers statiques tels que des images, des fichiers CSS, des fichiers JavaScript, etc. Lorsque tu utilises express.static('public'), Express.js va automatiquement servir les fichiers qui se trouvent dans ce dossier lorsque les clients font des requêtes pour ces ressources. Par exemple, si tu as un fichier image nommé "logo.png" dans le dossier "public", il sera accessible via l'URL http://localhost:3000/logo.png.----
+
 
 // connect to database
 connectDB();
 
 
-// Static files
-app.use(express.static('public')); //Sert à servir les fichiers statiques dans ton serveur Express.js.   ---- 'public' est un dossier qui contient des fichiers statiques tels que des images, des fichiers CSS, des fichiers JavaScript, etc. Lorsque tu utilises express.static('public'), Express.js va automatiquement servir les fichiers qui se trouvent dans ce dossier lorsque les clients font des requêtes pour ces ressources. Par exemple, si tu as un fichier image nommé "logo.png" dans le dossier "public", il sera accessible via l'URL http://localhost:3000/logo.png.----
 
 //Templating engine
 app.use(expressLayouts);
@@ -54,7 +65,7 @@ app.set('view engine', 'ejs');// Définit le moteur de rendu des vues sur EJS (E
     res.render('index', locals);
 });
 */
- 
+
 
 //Routes
 app.use('/', require('./server/routes/auth')); //Toutes les routes dans auth.js deviennent accessibles
